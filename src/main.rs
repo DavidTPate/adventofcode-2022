@@ -13,7 +13,57 @@ const LOWER_OFFSET: u8 = (1 - LOWER_A as i8).abs() as u8;
 const UPPER_OFFSET: u8 = (27 - UPPER_A as i8).abs() as u8;
 
 fn main() {
-    day3();
+    day4();
+}
+
+fn day4() {
+    let input = helpers::file_reader::read_file_for_day("4");
+    let line_endings = helpers::file_reader::get_line_endings(input.borrow());
+    let pairs: Vec<Vec<Vec<i32>>> = input.split(line_endings).map(|p| p.split(",").map(|q| {
+        q.split("-").map(|v| if !v.is_empty() { v.parse::<i32>().unwrap() } else { 0 }).collect()
+    }).collect()).collect();
+
+    let mut num_fully_contained: i32 = 0;
+    let mut num_groups_overlap: i32 = 0;
+    for wg in pairs.iter() {
+        if (wg.len() >= 2) {
+
+            let mut assigns: HashMap<i32, i32> = HashMap::new();
+            let mut overlaps: Vec<i32> = vec![];
+            let left = wg.get(0).unwrap();
+            let left_total = left[1] - left[0] + 1;
+            for num in left[0]..left[1] + 1 {
+                *assigns.entry(num).or_default() += 1;
+
+                if assigns.get(&num).unwrap() >= &2 {
+                    overlaps.push(num);
+                }
+            }
+            let right = wg.get(1).unwrap();
+            let right_total = right[1] - right[0] + 1;
+            for num in right[0]..right[1] + 1 {
+                *assigns.entry(num).or_default() += 1;
+
+                if assigns.get(&num).unwrap() >= &2 {
+                    overlaps.push(num);
+                }
+            }
+
+            let num_overlaps: i32 = overlaps.len() as i32;
+            // println!("left {:?} ltot {:?} right {:?} rtot {:?} otot {:?} overlaps {:?}", left, left_total, right, right_total, num_overlaps, overlaps);
+            if left_total <= num_overlaps || right_total <= num_overlaps {
+                num_fully_contained += 1;
+                println!("Full Contain Detected: left {:?} ltot {:?} right {:?} rtot {:?} otot {:?} overlaps {:?}", left, left_total, right, right_total, num_overlaps, overlaps);
+            }
+
+            if num_overlaps >= 1 {
+                println!("{:?}", num_overlaps);
+                num_groups_overlap += 1;
+            }
+        }
+    }
+    println!("First Answer: {:?}", num_fully_contained);
+    println!("Second Answer: {:?}", num_groups_overlap);
 }
 
 fn day3() {
